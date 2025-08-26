@@ -684,7 +684,7 @@ def guardResponseFunction(c, m, k, channel):
                     )
                 return c.ban_chat_member(m.chat.id, m.from_user.id)
 
-        if m.from_user.last_name:
+    if m.from_user.last_name:
             if (
                 m.from_user.last_name in persianInformation["last_names"]
                 or m.from_user.id in persianInformation["ids"]
