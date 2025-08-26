@@ -630,39 +630,38 @@ def guardResponseFunction(c, m, k, channel):
             )
 
     if r.get(f"{m.chat.id}:lockSHTM:{hmshelp}") and (m.caption or m.text):
-        if m.caption:
-            txt = m.caption
-        if m.text:
-            txt = m.text
-        for a in list_UwU:
-            if txt == a or f" {a} " in txt or a in txt:
-                m.delete()
-                warn = True
-                reason = "السب هنا"
-                if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-                    f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-                ):
-                    r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-                    return m.reply(
-                        warner.format(mention, k, reason), disable_web_page_preview=True
-                    )
-
+    if m.caption:
+        txt = m.caption
+    else:  # استخدام else بدلاً من if منفصل
+        txt = m.text
     
-  if r.get(f'{m.chat.id}:lockKFR:{hmshelp}') and (m.caption or m.text):
-     if m.caption:
-         txt = m.caption.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
-     if m.text:
-         txt = m.text.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
-     for kfr in list_Shiaa:
-         if kfr in txt:
+    for a in list_UwU:
+        if txt == a or f" {a} " in txt or a in txt:
+            m.delete()
+            warn = True
+            reason = "السب هنا"
+            if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
+                f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
+            ):
+                r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
+                return m.reply(
+                    warner.format(mention, k, reason), disable_web_page_preview=True
+                )
+
+if r.get(f'{m.chat.id}:lockKFR:{hmshelp}') and (m.caption or m.text):
+    if m.caption:
+        txt = m.caption.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
+    else:  # استخدام else هنا أيضاً
+        txt = m.text.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
+    
+    for kfr in list_Shiaa:
+        if kfr in txt:
             m.delete()
             warn = True
             reason = 'الكفر هنا'
             if not r.get(f'{m.chat.id}:disableWarn:{hmshelp}') and not r.get(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}'):
-                 r.set(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}',1,ex=60)
-                 return m.reply(warner.format(mention,k,reason),disable_web_page_preview=True)
-  
-
+                r.set(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}', 1, ex=60)
+                return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
     if r.get(f"{m.chat.id}:lockJoinPersian:{hmshelp}") and m.new_chat_members:
         if m.from_user.first_name:
             if (
