@@ -217,7 +217,7 @@ def private_func(c,m,k):
   text = m.text
   #r.set(f'DevGroup:{hmshelp}'
   name = r.get(f'{hmshelp}:BotName') if r.get(f'{hmshelp}:BotName') else 'الين'
-  channel= r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+  channel= r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
   if text == '/start':
     photo_enabled = r.get(f'photo_status:{m.chat.id}') == 'enabled' if r.exists(f'photo_status:{m.chat.id}') else True 
     
@@ -384,7 +384,7 @@ def private_func(c,m,k):
 @Client.on_message(filters.text, group=30)
 def sudosCommandsHandler(c,m):
     k = r.get(f'{hmshelp}:botkey')
-    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
     Thread(target=SudosCommandsFunc,args=(c,m,k,r,channel)).start()
 
 def SudosCommandsFunc(c,m,k,r,channel):
@@ -971,4 +971,5 @@ async def cssworker_url(target_url: str):
         resp = await http.post(url, headers=my_headers, json=data)
         return resp.json()
     except HTTPError:
+
         return None
