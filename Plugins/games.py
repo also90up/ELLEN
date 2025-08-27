@@ -61,7 +61,7 @@ async def filter_emoji(client: Client, m: Message):
 @Client.on_message(filters.text & filters.group, group=33)
 def gamesHandler(c,m):
     k = r.get(f'{hmshelp}:botkey')
-    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
     Thread(target=gamesFunc,args=(c,m,k,channel)).start()
 
 @Client.on_message(filters.dice & filters.group, group=45)
@@ -2069,7 +2069,7 @@ def gamesFunc(c,m,k,channel):
 
 @Client.on_callback_query(filters.regex('aki'))
 def akinatorHandler(c,m):
-   channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+   channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
    if m.data == f'start_aki:{m.from_user.id}':
     rep = InlineKeyboardMarkup (
          [[InlineKeyboardButton ('HmsHelp', url=f't.me/{channel}')]]
