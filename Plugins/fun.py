@@ -1,3 +1,4 @@
+#الاسطوره عاشق الصمت 
 import random, re, time
 from threading import Thread
 from pyrogram import *
