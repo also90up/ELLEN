@@ -154,7 +154,7 @@ def addreply(c,m,k):
    if r.get(f'{m.chat.id}addCustomG:{m.from_user.id}{hmshelp}'):  return 
    if r.get(f'{m.chat.id}:delCustom:{m.from_user.id}{hmshelp}') or r.get(f'{m.chat.id}:delCustomG:{m.from_user.id}{hmshelp}'):  return 
    text = m.text
-   name = r.get(f'{hmshelp}:BotName') if r.get(f'{hmshelp}:BotName') else 'عاشق الصمت'
+   name = r.get(f'{hmshelp}:BotName') if r.get(f'{hmshelp}:BotName') else 'الين'
    if text.startswith(f'{name} '):
       text = text.replace(f'{name} ','')
    if r.get(f'{m.chat.id}:Custom:{m.chat.id}{hmshelp}&text={text}'):
@@ -388,7 +388,7 @@ def addreplyrandom(c,m,k):
    if r.get(f'{m.chat.id}:addCustom:{m.from_user.id}{hmshelp}'):  return 
    if r.get(f'{m.chat.id}addCustomG:{m.from_user.id}{hmshelp}'):  return 
    text = m.text
-   name = r.get(f'{hmshelp}:BotName') if r.get(f'{hmshelp}:BotName') else 'عاشق الصمت'
+   name = r.get(f'{hmshelp}:BotName') if r.get(f'{hmshelp}:BotName') else 'الين'
    if text.startswith(f'{name} '):
       text = text.replace(f'{name} ','')
    if r.get(f'{m.chat.id}:Custom:{m.chat.id}{hmshelp}&text={text}'):
