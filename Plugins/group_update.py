@@ -420,7 +420,7 @@ def get_rngp(c,m):
           reply_markup=InlineKeyboardMarkup (
             [
             [
-              InlineKeyboardButton (title,url='t.me/botatiiii')
+              InlineKeyboardButton (title,url='t.me/YamenThon')
             ],
             [
               InlineKeyboardButton ('بصوت سعد الغامدي',callback_data=f'{m.from_user.id}quSaad={MaherAlmaikulai[f"سورة {soura}"].split("MaherSounds/")[1]}')
