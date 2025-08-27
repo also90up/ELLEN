@@ -10,7 +10,7 @@ from helpers.Ranks import *
 @Client.on_message(filters.text & filters.group, group=36)
 def replaceCode(c,m):
     k = r.get(f'{hmshelp}:botkey')
-    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
     Thread(target=raplaceCodefunc,args=(c,m,k,channel)).start()
     
 def raplaceCodefunc(c,m,k,channel):
