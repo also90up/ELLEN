@@ -1,12 +1,18 @@
-import random, re, time, pytz, os, gtts, requests
+import random
+import re
+import time
+import pytz
+import os
+import gtts
+import requests
 import speech_recognition as sr
 from pydub import AudioSegment
 from hijri_converter import Hijri, Gregorian
 from datetime import datetime
 from threading import Thread
-from pyrogram import *
-from pyrogram.enums import *
-from pyrogram.types import *
+from pyrogram import Client, filters, enums
+from pyrogram.errors import UserNotParticipant, FloodWait
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, ChatPermissions, ChatMemberStatus, ChatMembersFilter, ChatPrivileges
 from config import *
 from helpers.Ranks import *
 from helpers.persianData import persianInformation
@@ -16,161 +22,38 @@ from PIL import Image
 from asyncio import run as RUN
 from Python_ARQ import ARQ
 from aiohttp import ClientSession
-
-# from googletrans import Translator as googletranstr
 from mutagen.mp3 import MP3 as mutagenMP3
-# from main import TelegramBot
 
 ARQ_API_KEY = "OZJRWV-SAURXD-PMBUKF-GMVSNS-ARQ"
 ARQ_API_URL = "https://arq.hamker.dev"
 
-# translator = googletranstr()
-
-
 list_UwU = [
-    "كس",
-    "كسمك",
-    "كسختك",
-    "عير",
-    "كسخالتك",
-    "خرا بالله",
-    "عير بالله",
-    "كسخواتكم",
-    "كحاب",
-    "مناويج",
-    "مناويج",
-    "كحبه",
-    "ابن الكحبه",
-    "فرخ",
-    "فروخ",
-    "طيزك",
-    "طيزختك",
-    "كسمك",
-    "يا ابن الخول",
-    "المتناك",
-    "شرموط",
-    "شرموطه",
-    "ابن الشرموطه",
-    "ابن الخول",
-    "ابن العرص",
-    "منايك",
-    "متناك",
-    "ابن المتناكه",
-    "زبك",
-    "عرص",
-    "زبي",
-    "خول",
-    "لبوه",
-    "لباوي",
-    "ابن اللبوه",
-    "منيوك",
-    "كسمكك",
-    "متناكه",
-    "يا عرص",
-    "يا خول",
-    "قحبه",
-    "القحبه",
-    "شراميط",
-    "العلق",
-    "العلوق",
-    "العلقه",
-    "كسمك",
-    "يا ابن الخول",
-    "المتناك",
-    "شرموط",
-    "شرموطه",
-    "ابن الشرموطه",
-    "ابن الخول",
-    "االمنيوك",
-    "كسمككك",
-    "الشرموطه",
-    "ابن العرث",
-    "ابن الحيضانه",
-    "زبك",
-    "خول",
-    "زبي",
-    "قاحب",
+    "كس", "كسمك", "كسختك", "عير", "كسخالتك", "خرا بالله", "عير بالله", "كسخواتكم", "كحاب", "مناويج", 
+    "مناويج", "كحبه", "ابن الكحبه", "فرخ", "فروخ", "طيزك", "طيزختك", "كسمك", "يا ابن الخول", "المتناك", 
+    "شرموط", "شرموطه", "ابن الشرموطه", "ابن الخول", "ابن العرص", "منايك", "متناك", "ابن المتناكه", "زبك", 
+    "عرص", "زبي", "خول", "لبوه", "لباوي", "ابن اللبوه", "منيوك", "كسمكك", "متناكه", "يا عرص", "يا خول", 
+    "قحبه", "القحبه", "شراميط", "العلق", "العلوق", "العلقه", "كسمك", "يا ابن الخول", "المتناك", "شرموط", 
+    "شرموطه", "ابن الشرموطه", "ابن الخول", "االمنيوك", "كسمككك", "الشرموطه", "ابن العرث", "ابن الحيضانه", 
+    "زبك", "خول", "زبي", "قاحب"
 ]
 
 list_Shiaa = [
-    "يا علي",
-    "يا حسين",
-    "ياعلي",
-    "ياحسين",
-    "علي ولي الله",
-    "عليا ولي الله",
-    "عائشه زانيه",
-    "عائشة زانية",
-    "عائشة عاهرة",
-    "عائشه عاهره",
-    "خرب ربك",
-    "خرب الله",
-    "يلعن ربك",
-    "يلعن الله",
-    "يا عمر",
-    "ياعمر",
-    "يا محمد",
-    "يامحمد",
-    "زوجات الرسول",
-    "عير بالسنة",
-    "عير بالسنه",
-    "خرب السنه",
-    "خرا بالسنه",
-    "خرب السنة",
-    "خرا بالسنة",
-    "والحسين",
-    "والعباس",
-    "وعلي",
-    "والامام علي",
-    "ربنا علي",
-    "علي الله",
-    "الله علي",
-    "رب علي",
-    "علي رب",
+    "يا علي", "يا حسين", "ياعلي", "ياحسين", "علي ولي الله", "عليا ولي الله", "عائشه زانيه", "عائشة زانية", 
+    "عائشة عاهرة", "عائشه عاهره", "خرب ربك", "خرب الله", "يلعن ربك", "يلعن الله", "يا عمر", "ياعمر", "يا محمد", 
+    "يامحمد", "زوجات الرسول", "عير بالسنة", "عير بالسنه", "خرب السنه", "خرا بالسنه", "خرب السنة", "خرا بالسنة", 
+    "والحسين", "والعباس", "وعلي", "والامام علي", "ربنا علي", "علي الله", "الله علي", "رب علي", "علي رب"
 ]
-
 
 def Find(text):
     m = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s!()\[\]{};:'\".,<>?«»“”‘’]))"
     url = re.findall(m, text)
     return [x[0] for x in url]
 
-
-"""
-         r.get(f'{m.chat.id}:mute:{hmshelp}')
-         r.get(f'{m.chat.id}:lockJoin:{hmshelp}')
-         r.get(f'{m.chat.id}:lockChannels:{hmshelp}')
-         r.get(f'{m.chat.id}:lockEdit:{hmshelp}')
-         r.get(f'{m.chat.id}:lockEditM:{hmshelp}')
-         r.get(f'{m.chat.id}:lockVoice:{hmshelp}')
-         r.get(f'{m.chat.id}:lockVideo:{hmshelp}')
-         r.get(f'{m.chat.id}:lockNot:{hmshelp}')
-         r.get(f'{m.chat.id}:lockPhoto:{hmshelp}')
-         r.get(f'{m.chat.id}:lockStickers:{hmshelp}')
-         r.get(f'{m.chat.id}:lockAnimations:{hmshelp}')
-         r.get(f'{m.chat.id}:lockFiles:{hmshelp}')
-         r.get(f'{m.chat.id}:lockPersian:{hmshelp}')
-         r.get(f'{m.chat.id}:lockUrls:{hmshelp}')
-         r.get(f'{m.chat.id}:lockHashtags:{hmshelp}')
-         r.get(f'{m.chat.id}:lockMessages:{hmshelp}')
-         r.get(f'{m.chat.id}:lockTags:{hmshelp}')
-         r.get(f'{m.chat.id}:lockBots:{hmshelp}')
-         r.get(f'{m.chat.id}:lockSpam:{hmshelp}')
-         r.get(f'{m.chat.id}:lockInline:{hmshelp}')
-         r.get(f'{m.chat.id}:lockForward:{hmshelp}')
-         r.get(f'{m.chat.id}:lockAudios:{hmshelp}')
-         r.get(f'{m.chat.id}:lockaddContacts:{hmshelp}')
-         r.get(f'{m.chat.id}:lockSHTM:{hmshelp}')
-"""
-
-from pyrogram.errors import UserNotParticipant, FloodWait
-
-
 @Client.on_message(filters.group, group=-1111111111111)
 async def on_zbi(c: Client, m: Message):
     name = r.get(f"{hmshelp}:BotName") if r.get(f"{hmshelp}:BotName") else "الين"
     text = m.text
-    if text.startswith(f"{name} "):
+    if text and text.startswith(f"{name} "):
         text = text.replace(f"{name} ", "")
     if r.get(f"{m.chat.id}:Custom:{m.chat.id}{hmshelp}&text={text}"):
         text = r.get(f"{m.chat.id}:Custom:{m.chat.id}{hmshelp}&text={text}")
@@ -183,17 +66,8 @@ async def on_zbi(c: Client, m: Message):
     if dev_pls(m.from_user.id, m.chat.id):
         return
 
-    if (
-        text.startswith("تفعيل ")
-        or text.startswith("تعطيل ")
-        or text.startswith("قفل ")
-        or text.startswith("فتح ")
-        or text == "ايدي"
-        or text == "الاوامر"
-    ):
-        if r.get(f"forceChannel:{hmshelp}") and (
-            not r.get(f"disableSubscribe:{hmshelp}")
-        ):
+    if (text and (text.startswith("تفعيل ") or text.startswith("تعطيل ") or text.startswith("قفل ") or text.startswith("فتح ") or text == "ايدي" or text == "الاوامر")):
+        if r.get(f"forceChannel:{hmshelp}") and (not r.get(f"disableSubscribe:{hmshelp}")):
             username = r.get(f"forceChannel:{hmshelp}").replace("@", "")
             not_member = False
             try:
@@ -203,15 +77,7 @@ async def on_zbi(c: Client, m: Message):
             except UserNotParticipant:
                 await m.reply(
                     f"- انضم للقناة ( @{username} ) لتستطيع استخدام اوامر البوت",
-                    reply_markup=InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    "اضغط هنا", url="https://t.me/" + username
-                                )
-                            ]
-                        ]
-                    ),
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("اضغط هنا", url=f"https://t.me/{username}")]])
                 )
                 r.set(f"inDontCheck:{hmshelp}", 1, ex=10)
                 return m.stop_propagation()
@@ -219,10 +85,7 @@ async def on_zbi(c: Client, m: Message):
                 print(e)
                 return m.continue_propagation()
 
-            if member.status in {
-                enums.ChatMemberStatus.LEFT,
-                enums.ChatMemberStatus.BANNED,
-            } or member.status is None:
+            if member.status in {enums.ChatMemberStatus.LEFT, enums.ChatMemberStatus.BANNED} or member.status is None:
                 not_member = True
             else:
                 not_member = False
@@ -230,48 +93,29 @@ async def on_zbi(c: Client, m: Message):
             if not_member:
                 await m.reply(
                     f"- انضم للقناة ( @{username} ) لتستطيع استخدام اوامر البوت",
-                    reply_markup=InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    "اضغط هنا", url="https://t.me/" + username
-                                )
-                            ]
-                        ]
-                    ),
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("اضغط هنا", url=f"https://t.me/{username}")]])
                 )
-                r.set(f"inDontCheck:{hmshelp}", ex=10)
+                r.set(f"inDontCheck:{hmshelp}", 1, ex=10)
                 return m.stop_propagation()
             else:
                 return m.continue_propagation()
 
-
 @Client.on_message(filters.group, group=27)
 def guardLocksResponse(c, m):
     k = r.get(f"{hmshelp}:botkey")
-    channel = (
-        r.get(f"{hmshelp}:BotChannel") if r.get(f"{hmshelp}:BotChannel") else "YamenThon"
-    )
+    channel = r.get(f"{hmshelp}:BotChannel") if r.get(f"{hmshelp}:BotChannel") else "YamenThon"
     Thread(target=guardResponseFunction, args=(c, m, k, channel)).start()
-
 
 @Client.on_edited_message(filters.group, group=27)
 def guardLocksResponse2(c, m):
     k = r.get(f"{hmshelp}:botkey")
-    channel = (
-        r.get(f"{hmshelp}:BotChannel") if r.get(f"{hmshelp}:BotChannel") else "YamenThon"
-    )
+    channel = r.get(f"{hmshelp}:BotChannel") if r.get(f"{hmshelp}:BotChannel") else "YamenThon"
     Thread(target=guardResponseFunction2, args=(c, m, k, channel)).start()
-
 
 def guardResponseFunction2(c, m, k, channel):
     if not r.get(f"{m.chat.id}:enable:{hmshelp}"):
         return
-    warner = """
-「 {} 」
-{} ممنوع {}
-☆
-"""
+    warner = "「 {} 」\n{} ممنوع {}\n☆"
     warn = False
     reason = False
 
@@ -282,58 +126,33 @@ def guardResponseFunction2(c, m, k, channel):
         id = m.from_user.id
         mention = m.from_user.mention
 
-    if (
-        r.get(f"{m.chat.id}:lockEdit:{hmshelp}")
-        and m.text
-        and not pre_pls(id, m.chat.id)
-    ):
+    if (r.get(f"{m.chat.id}:lockEdit:{hmshelp}") and m.text and not pre_pls(id, m.chat.id)):
         m.delete()
         warn = True
         reason = "التعديل"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
-    if (
-        r.get(f"{m.chat.id}:lockEditM:{hmshelp}")
-        and m.media
-        and not pre_pls(id, m.chat.id)
-    ):
+    if (r.get(f"{m.chat.id}:lockEditM:{hmshelp}") and m.media and not pre_pls(id, m.chat.id)):
         m.delete()
         warn = True
         reason = "تعديل الميديا"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
-
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
 def guardResponseFunction(c, m, k, channel):
     if not r.get(f"{m.chat.id}:enable:{hmshelp}"):
         return
-    warner = """
-「 {} 」
-{} ممنوع {}
-☆
-"""
+    warner = "「 {} 」\n{} ممنوع {}\n☆"
     warn = False
     reason = False
 
     if r.get(f"{m.chat.id}:lockNot:{hmshelp}") and m.service:
         m.delete()
 
-    if (
-        r.get(f"{m.chat.id}:lockaddContacts:{hmshelp}")
-        and m.from_user
-        and m.new_chat_members
-    ):
+    if (r.get(f"{m.chat.id}:lockaddContacts:{hmshelp}") and m.from_user and m.new_chat_members):
         if pre_pls(m.from_user.id, m.chat.id):
             return
         for me in m.new_chat_members:
@@ -344,9 +163,7 @@ def guardResponseFunction(c, m, k, channel):
                 reason = "تضيف حد هنا"
                 m.delete()
                 if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}"):
-                    return m.reply(
-                        warner.format(mention, k, reason), disable_web_page_preview=True
-                    )
+                    return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if m.sender_chat:
         id = m.sender_chat.id
@@ -354,8 +171,6 @@ def guardResponseFunction(c, m, k, channel):
     if m.from_user:
         id = m.from_user.id
         mention = m.from_user.mention
-
-    # print(id)
 
     if m.media:
         rep = m
@@ -420,15 +235,10 @@ def guardResponseFunction(c, m, k, channel):
                     r.set(f"{id}:mute:{m.chat.id}{hmshelp}", 1)
                     r.sadd(f"{m.chat.id}:listMUTE:{hmshelp}", id)
                     r.delete(f"{id}in_spam:{m.chat.id}{hmshelp}")
-                    return m.reply(
-                        f"「 {mention} 」 \n{k} كتمتك يالبثر عشان تتعلم تكرر\n☆"
-                    )
-
+                    return m.reply(f"「 {mention} 」 \n{k} كتمتك يالبثر عشان تتعلم تكرر\n☆")
                 if m.sender_chat:
-                    m.chat.ban_member(m.sender_chat)
-                    return m.reply(
-                        f"「 {mention} 」 {k} حظرتك يالبثر عشان تتعلم تكرر\n☆"
-                    )
+                    m.chat.ban_member(m.sender_chat.id)
+                    return m.reply(f"「 {mention} 」 {k} حظرتك يالبثر عشان تتعلم تكرر\n☆")
             else:
                 get = int(r.get(f"{id}in_spam:{m.chat.id}{hmshelp}"))
                 r.set(f"{id}in_spam:{m.chat.id}{hmshelp}", get + 1, ex=10)
@@ -437,107 +247,65 @@ def guardResponseFunction(c, m, k, channel):
         m.delete()
         warn = True
         reason = "ترسل انلاين"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockForward:{hmshelp}") and m.forward_date:
         m.delete()
         warn = True
         reason = "ترسل توجيه"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
-
-    """
-  if r.get(f'{m.chat.id}:lockForward:{hmshelp}') and m.forward_from_chat:
-     m.delete()
-     warn = True
-     reason = 'ترسل توجيه'
-     if not r.get(f'{m.chat.id}:disableWarn:{hmshelp}') and not r.get(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}'):
-        r.set(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}',1,ex=60)
-        return m.reply(warner.format(mention,k,reason),disable_web_page_preview=True)
-  """
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockAudios:{hmshelp}") and m.audio:
         m.delete()
         warn = True
         reason = "ترسل صوت"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockVideo:{hmshelp}") and m.video:
         m.delete()
         warn = True
         reason = "ترسل فيديوهات"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockPhoto:{hmshelp}") and m.photo:
         m.delete()
         warn = True
         reason = "ترسل صور"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockStickers:{hmshelp}") and m.sticker:
         m.delete()
         warn = True
         reason = "ترسل ملصقات"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockAnimations:{hmshelp}") and m.animation:
         m.delete()
         warn = True
         reason = "ترسل متحركات"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockFiles:{hmshelp}") and m.document:
         m.delete()
         warn = True
         reason = "ترسل ملفات"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockPersian:{hmshelp}") and m.text:
         if "ه‍" in m.text or "ی" in m.text or "ک" in m.text or "چ" in m.text:
@@ -545,9 +313,7 @@ def guardResponseFunction(c, m, k, channel):
             warn = True
             reason = "ترسل فارسي"
             if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}"):
-                return m.reply(
-                    warner.format(mention, k, reason), disable_web_page_preview=True
-                )
+                return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockPersian:{hmshelp}") and m.caption:
         if "ه‍" in m.caption or "ی" in m.caption or "ک" in m.caption or "چ" in m.caption:
@@ -555,167 +321,97 @@ def guardResponseFunction(c, m, k, channel):
             warn = True
             reason = "ترسل فارسي"
             if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}"):
-                return m.reply(
-                    warner.format(mention, k, reason), disable_web_page_preview=True
-                )
+                return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
-    if (
-        r.get(f"{m.chat.id}:lockUrls:{hmshelp}")
-        and m.text
-        and len(Find(m.text.html)) > 0
-    ):
+    if (r.get(f"{m.chat.id}:lockUrls:{hmshelp}") and m.text and len(Find(m.text.html)) > 0):
         m.delete()
         warn = True
         reason = "ترسل روابط"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
-    if (
-        r.get(f"{m.chat.id}:lockHashtags:{hmshelp}")
-        and m.text
-        and len(re.findall(r"#(\w+)", m.text)) > 0
-    ):
+    if (r.get(f"{m.chat.id}:lockHashtags:{hmshelp}") and m.text and len(re.findall(r"#(\w+)", m.text)) > 0):
         m.delete()
         warn = True
         reason = "ترسل هاشتاق"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockMessages:{hmshelp}") and m.text and len(m.text) > 150:
         m.delete()
         warn = True
         reason = "ترسل كلام كثير"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockVoice:{hmshelp}") and m.voice:
         m.delete()
         warn = True
         reason = "ترسل فويس"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
-    if r.get(
-        f"{m.chat.id}:lockTags:{hmshelp}"
-    ) and '"type": "MessageEntityType.MENTION"' in str(m):
+    if r.get(f"{m.chat.id}:lockTags:{hmshelp}") and '"type": "MessageEntityType.MENTION"' in str(m):
         m.delete()
         warn = True
         reason = "ترسل منشنات"
-        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-            f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-        ):
+        if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
             r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-            return m.reply(
-                warner.format(mention, k, reason), disable_web_page_preview=True
-            )
+            return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
     if r.get(f"{m.chat.id}:lockSHTM:{hmshelp}") and (m.caption or m.text):
-    if m.caption:
-        txt = m.caption
-    else:  # استخدام else بدلاً من if منفصل
-        txt = m.text
-    
-    for a in list_UwU:
-        if txt == a or f" {a} " in txt or a in txt:
-            m.delete()
-            warn = True
-            reason = "السب هنا"
-            if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(
-                f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"
-            ):
-                r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
-                return m.reply(
-                    warner.format(mention, k, reason), disable_web_page_preview=True
-                )
+        if m.caption:
+            txt = m.caption
+        if m.text:
+            txt = m.text
+        for a in list_UwU:
+            if txt == a or f" {a} " in txt or a in txt:
+                m.delete()
+                warn = True
+                reason = "السب هنا"
+                if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}") and not r.get(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}"):
+                    r.set(f"{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}", 1, ex=60)
+                    return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
 
-if r.get(f'{m.chat.id}:lockKFR:{hmshelp}') and (m.caption or m.text):
-    if m.caption:
-        txt = m.caption.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
-    else:  # استخدام else هنا أيضاً
-        txt = m.text.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
-    
-    for kfr in list_Shiaa:
-        if kfr in txt:
-            m.delete()
-            warn = True
-            reason = 'الكفر هنا'
-            if not r.get(f'{m.chat.id}:disableWarn:{hmshelp}') and not r.get(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}'):
-                r.set(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}', 1, ex=60)
-                return m.reply(warner.format(mention, k, reason), disable_web_page_preview=True)
+    if r.get(f'{m.chat.id}:lockKFR:{hmshelp}') and (m.caption or m.text):
+        if m.caption:
+            txt = m.caption.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
+        if m.text:
+            txt = m.text.replace("*","").replace("`","").replace("|","").replace("#","").replace("<","").replace(">","").replace("_","").replace("ـ","").replace("َ","").replace("ٕ","").replace("ُ","").replace("ِ","").replace("ٰ","").replace("ٖ","").replace("ً","").replace("ّ","").replace("ٌ","").replace("ٍ","").replace("ْ","").replace("ٔ","").replace("'","").replace('"',"")
+        for kfr in list_Shiaa:
+            if kfr in txt:
+                m.delete()
+                warn = True
+                reason = 'الكفر هنا'
+                if not r.get(f'{m.chat.id}:disableWarn:{hmshelp}') and not r.get(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}'):
+                    r.set(f'{hmshelp}:inWARN:{m.from_user.id}{m.chat.id}',1,ex=60)
+                    return m.reply(warner.format(mention,k,reason),disable_web_page_preview=True)
+
     if r.get(f"{m.chat.id}:lockJoinPersian:{hmshelp}") and m.new_chat_members:
         if m.from_user.first_name:
-            if (
-                m.from_user.first_name in persianInformation["names"]
-                or m.from_user.id in persianInformation["ids"]
-                or "ه‍" in m.from_user.first_name
-                or "ی" in m.from_user.first_name
-                or "ک" in m.from_user.first_name
-                or "چ" in m.from_user.first_name
-                or "👙" in m.from_user.first_name
-            ) and not pre_pls(m.from_user.id, m.chat.id):
+            if (m.from_user.first_name in persianInformation["names"] or m.from_user.id in persianInformation["ids"] or "ه‍" in m.from_user.first_name or "ی" in m.from_user.first_name or "ک" in m.from_user.first_name or "چ" in m.from_user.first_name or "👙" in m.from_user.first_name) and not pre_pls(m.from_user.id, m.chat.id):
                 if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}"):
-                    m.reply(
-                        """
-「 {} 」
-{} تم حظره لاشتباهه ببوت إيراني
-☆
-""".format(m.from_user.mention, k)
-                    )
+                    m.reply(f"「 {m.from_user.mention} 」\n{k} تم حظره لاشتباهه ببوت إيراني\n☆")
                 return c.ban_chat_member(m.chat.id, m.from_user.id)
 
-    if m.from_user.last_name:
-            if (
-                m.from_user.last_name in persianInformation["last_names"]
-                or m.from_user.id in persianInformation["ids"]
-                or "ه‍" in m.from_user.last_name
-                or "ی" in m.from_user.last_name
-                or "ک" in m.from_user.last_name
-                or "چ" in m.from_user.last_name
-                or "👙" in m.from_user.last_name
-            ) and not pre_pls(m.from_user.id, m.chat.id):
+        if m.from_user.last_name:
+            if (m.from_user.last_name in persianInformation["last_names"] or m.from_user.id in persianInformation["ids"] or "ه‍" in m.from_user.last_name or "ی" in m.from_user.last_name or "ک" in m.from_user.last_name or "چ" in m.from_user.last_name or "👙" in m.from_user.last_name) and not pre_pls(m.from_user.id, m.chat.id):
                 if not r.get(f"{m.chat.id}:disableWarn:{hmshelp}"):
-                    m.reply(
-                        """
-「 {} 」
-{} تم حظره لاشتباهه ببوت إيراني
-☆
-""".format(m.from_user.mention, k)
-                    )
+                    m.reply(f"「 {m.from_user.mention} 」\n{k} تم حظره لاشتباهه ببوت إيراني\n☆")
                 return c.ban_chat_member(m.chat.id, m.from_user.id)
 
     if r.get(f"{m.chat.id}:enableVerify:{hmshelp}") and m.new_chat_members:
         for me in m.new_chat_members:
             if not pre_pls(me.id, m.chat.id):
-                c.restrict_chat_member(
-                    m.chat.id, me.id, ChatPermissions(can_send_messages=False)
-                )
+                c.restrict_chat_member(m.chat.id, me.id, ChatPermissions(can_send_messages=False))
                 get_random = get_for_verify(me)
                 question = get_random["question"]
                 reply_markup = get_random["key"]
-                return m.reply(
-                    f"{k} قيدناك عشان نتاكد انك شخص حقيقي مو زومبي\n\n{question}",
-                    reply_markup=reply_markup,
-                )
+                return m.reply(f"{k} قيدناك عشان نتاكد انك شخص حقيقي مو زومبي\n\n{question}", reply_markup=reply_markup)
 
     if m.media and r.get(f"{m.chat.id}:lockNSFW:{hmshelp}"):
         print("nsfw scanner")
@@ -728,13 +424,11 @@ if r.get(f'{m.chat.id}:lockKFR:{hmshelp}') and (m.caption or m.text):
                 id = m.video.thumbs[0].file_id
             if m.animation:
                 id = m.animation.thumbs[0].file_id
-        file = c.download_media(id)
-        Thread(target=scanR, args=(c, m, id, file)).start()
-
+            file = c.download_media(id)
+            Thread(target=scanR, args=(c, m, id, file)).start()
 
 def scanR(c, m, id, file):
     RUN(scan4(c, m, id, file))
-
 
 async def scan4(c, m, id, file):
     session = ClientSession()
@@ -744,12 +438,9 @@ async def scan4(c, m, id, file):
         print("xNSFW")
         await m.delete()
         k = r.get(f"{hmshelp}:botkey")
-        await m.reply(
-            f"「 {m.from_user.mention} 」\n{k} تم حذف رسالتك لإحتوائها على محتوى إباحي .\n☆"
-        )
+        await m.reply(f"「 {m.from_user.mention} 」\n{k} تم حذف رسالتك لإحتوائها على محتوى إباحي .\n☆")
     os.remove(file)
     await session.close()
-
 
 def get_for_verify(me):
     for_verify = [
@@ -5102,3 +4793,7 @@ async def monitor_admin_behavior(client, chat_member_updated):
                 
             except Exception as e:
                 print(f"حدث خطأ أثناء معاقبة المشرف: {e}")
+                
+                
+                
+    
