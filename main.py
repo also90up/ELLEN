@@ -66,7 +66,7 @@ if not r.get(f'{hmshelp}botname'):
     r.set(f'{hmshelp}botname', 'الين')
 
 if not r.get(f'{hmshelp}botchannel'):
-    r.set(f'{hmshelp}botname', 'vn1bot')
+    r.set(f'{hmshelp}botname', 'ELLNEVIP_BOT')
 
 def Find(text):
   m = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s!()\[\]{};:'\".,<>?«»“”‘’]))"
