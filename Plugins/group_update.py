@@ -525,7 +525,7 @@ def quMaher(c,m):
         reply_markup=InlineKeyboardMarkup (
             [
             [
-              InlineKeyboardButton (title,url='t.me/alwzaraa2')
+              InlineKeyboardButton (title,url='t.me/YamenThon')
             ],
             [
               InlineKeyboardButton ('بصوت سعد الغامدي',callback_data=f'{m.from_user.id}quSaad={soura}')
@@ -553,7 +553,7 @@ def qu3fasy(c,m):
         reply_markup=InlineKeyboardMarkup (
             [
             [
-              InlineKeyboardButton (title,url='t.me/alwzaraa2')
+              InlineKeyboardButton (title,url='t.me/YamenThon')
             ],
             [
               InlineKeyboardButton ('بصوت سعد الغامدي',callback_data=f'{m.from_user.id}quSaad={soura}')
@@ -581,7 +581,7 @@ def quBaset(c,m):
         reply_markup=InlineKeyboardMarkup (
             [
             [
-              InlineKeyboardButton (title,url='t.me/alwzaraa2')
+              InlineKeyboardButton (title,url='t.me/YamenThon')
             ],
             [
               InlineKeyboardButton ('بصوت سعد الغامدي',callback_data=f'{m.from_user.id}quSaad={soura}')
