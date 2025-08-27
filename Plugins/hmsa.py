@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, CallbackQuery, InlineKeyboardButton as Button, InlineKeyboardMarkup as Markup, ReplyParameters
+from pyrogram.types import Message, CallbackQuery, InlineKeyboardButton as Button, InlineKeyboardMarkup as Markup
 from kvsqlite.sync import Client as KV
 import random, string
 
@@ -94,7 +94,7 @@ async def hamsa_private(c: Client, m: Message):
             msg = await c.send_message(
                 chatID,
                 txt,
-                reply_parameters=ReplyParameters(message_id=msgID),
+                reply_to_message_id=msgID,
                 reply_markup=Markup(keb)
             )
 
