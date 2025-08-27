@@ -3235,7 +3235,7 @@ def guardCommands(c, m, k, channel):
             m.chat.unban_member(get.user.id)
             return m.reply(f"「 {get.user.mention} 」 \n{k} طردته\n☆")
 
-    if text == "همسه" and m.reply_to_message and m.reply_to_message.from_user:
+    if text in ["اهمس", "همسه", "ه"] and m.reply_to_message and m.reply_to_message.from_user:
         if r.get(f"{m.chat.id}:disableWHISPER:{hmshelp}"):
             return m.reply(f"{k} الهمسه معطله")
         user_id = m.reply_to_message.from_user.id
