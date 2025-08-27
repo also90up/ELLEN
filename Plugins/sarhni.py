@@ -47,7 +47,7 @@ def sarhniFunc(c,m,k):
 @Client.on_message(filters.private, group=2)
 def sarhniHandlerP(c,m):
     k = r.get(f'{hmshelp}:botkey')
-    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
     Thread(target=sarhniFuncP,args=(c,m,k,channel)).start()
 
 def sarhniFuncP(c,m,k,channel):
