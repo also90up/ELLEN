@@ -11,7 +11,7 @@ from helpers.Ranks import isLockCommand
 @Client.on_message(filters.text & filters.group, group=34)
 def funHandler(c,m):
     k = r.get(f'{hmshelp}:botkey')
-    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'alwzaraa2'
+    channel = r.get(f'{hmshelp}:BotChannel') if r.get(f'{hmshelp}:BotChannel') else 'YamenThon'
     Thread(target=funFunc,args=(c,m,k,channel)).start()
     
 def funFunc(c,m,k,channel):
