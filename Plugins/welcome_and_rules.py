@@ -237,6 +237,48 @@ def welcomeRespons(c,m):
 #========السوبرات==========
 
 @Client.on_chat_member_updated()
-async def test_welcome(c, m):
-    print("شوف التحديث يوصلك لما يدخل عضو؟", m)
-    # هنا تعليقي بسيط لتجربة وصول التحديث
+async def welcome_sg(c, m: ChatMemberUpdated):
+    if not m.new_chat_member:  # ما في عضو جديد
+        return
+    if m.new_chat_member.status != "member":  # العضو صار عضو عادي
+        return
+
+    chat_id = m.chat.id
+    user = m.new_chat_member.user
+
+    if not r.get(f"{chat_id}:enable:{hmshelp}"):
+        return
+
+    k = r.get(f"{hmshelp}:botkey")
+    channel = r.get(f"{hmshelp}:BotChannel") if r.get(f"{hmshelp}:BotChannel") else "h_m_sbot"
+
+    # نص الترحيب
+    welcome = r.get(f"{chat_id}:CustomWelcome:{hmshelp}") or default_welcome
+
+    title = m.chat.title
+    name = user.first_name
+    username = f"@{user.username}" if user.username else f"@{channel}"
+
+    TIME_ZONE = "Asia/Riyadh"
+    ZONE = pytz.timezone(TIME_ZONE)
+    TIME = datetime.now(ZONE)
+    clock = TIME.strftime("%I:%M %p")
+    date = TIME.strftime("%d/%m/%Y")
+
+    rules = r.get(f"{chat_id}:CustomRules:{hmshelp}") or f"""{k} ممنوع نشر الروابط
+{k} ممنوع التكلم او نشر صور اباحيه
+{k} ممنوع اعاده توجيه
+{k} ممنوع العنصرية بكل انواعها
+{k} الرجاء احترام المدراء والادمنيه"""
+
+    w = (
+        welcome.replace("{القوانين}", rules)
+        .replace("{الاسم}", name)
+        .replace("{المجموعه}", title)
+        .replace("{الوقت}", clock)
+        .replace("{التاريخ}", date)
+        .replace("{اليوزر}", username)
+        .replace("{الايدي}", str(me.id))
+    )
+
+    await c.send_message(chat_id, w, disable_web_page_preview=True)
