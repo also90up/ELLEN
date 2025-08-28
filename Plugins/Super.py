@@ -12,6 +12,9 @@ from pyrogram.types import ChatMemberUpdated, Message
 from datetime import datetime
 import pytz
 
+from pyrogram import Client
+from pyrogram.types import ChatMemberUpdated
+
 default_welcome = """أهلاً وسهلاً 💐
 الاسم: {الاسم}
 المعرف: {اليوزر}
@@ -22,32 +25,28 @@ default_welcome = """أهلاً وسهلاً 💐
 
 @Client.on_chat_member_updated()
 async def welcome_new_member(c: Client, m: ChatMemberUpdated):
+    # فقط إذا الانضمام (بغض النظر عن أول مرة أو عودة)
     if m.new_chat_member and m.new_chat_member.status == "member":
         user = m.new_chat_member.user
         chat = m.chat
 
-        # معلومات العضو
         name = user.first_name
         username = f"@{user.username}" if user.username else "بدون معرف"
         title = chat.title
 
-        # الوقت والتاريخ
-        TIME_ZONE = "Asia/Riyadh"
-        ZONE = pytz.timezone(TIME_ZONE)
-        TIME = datetime.now(ZONE)
+        zone = pytz.timezone("Asia/Riyadh")
+        TIME = datetime.now(zone)
         clock = TIME.strftime("%I:%M %p")
         date = TIME.strftime("%d/%m/%Y")
 
-        # نص الترحيب
         welcome = default_welcome.replace("{الاسم}", name)\
                                  .replace("{اليوزر}", username)\
                                  .replace("{المجموعه}", title)\
                                  .replace("{الوقت}", clock)\
                                  .replace("{التاريخ}", date)
 
-        # ارسال الترحيب
         try:
             await c.send_message(chat.id, welcome)
-            print(f"✅ تم الترحيب بالعضو: {name}")
+            print(f"✅ تم الترحيب: {name}")
         except Exception as e:
-            print("خطأ عند إرسال الترحيب:", e)
+            print("خطأ في إرسال الترحيب:", e)
