@@ -22,8 +22,7 @@ default_welcome = """أهلاً وسهلاً 💐
 
 @Client.on_chat_member_updated()
 async def welcome_new_member(c: Client, m: ChatMemberUpdated):
-    # نتأكد انه عضو جديد انضم
-    if m.new_chat_member.status == "member":
+    if m.new_chat_member and m.new_chat_member.status == "member":
         user = m.new_chat_member.user
         chat = m.chat
 
@@ -49,5 +48,6 @@ async def welcome_new_member(c: Client, m: ChatMemberUpdated):
         # ارسال الترحيب
         try:
             await c.send_message(chat.id, welcome)
+            print(f"✅ تم الترحيب بالعضو: {name}")
         except Exception as e:
             print("خطأ عند إرسال الترحيب:", e)
