@@ -123,7 +123,7 @@ def Find(text):
 app.start()
 # userbot.start()
 print('''
-🇸🇦 Run Bot Send /Start ''')
+🇾🇪 Run Bot Send /Start ''')
 if r.get(f'DevGroup:{hmshelp}'):
   id = int(r.get(f'DevGroup:{hmshelp}'))
   try:
