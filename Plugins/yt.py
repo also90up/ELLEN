@@ -15,7 +15,7 @@ def stm(seconds):
     return '{:02}:{:02}:{:02}'.format(seconds // 3600, seconds % 3600 // 60, seconds % 60)
 
 disable = []
-@app.on_message(filters.command("يوت", ["&",""]),group = 20)
+@Client.on_message(filters.command("يوت", ["&",""]),group = 20)
 def yttt(app,message):
     if message.text:
         if db.key_exists(f'group_{message.chat.id}') == 1:
@@ -52,7 +52,7 @@ def yttt(app,message):
             ydl.process_info(info_dict)
         message.reply_audio(audio=audio_file,performer=channel,title=title,duration=info_dict['duration'],caption=f"@YamenThon ~ {stm(info_dict['duration'])}")
         os.remove(audio_file)
-@app.on_message(filters.command("بحث", ["&",""]),group = 20)
+@Client.on_message(filters.command("بحث", ["&",""]),group = 20)
 def search(app, message):
     if message.text:
         if db.key_exists(f'group_{message.chat.id}') == 1:
@@ -83,7 +83,7 @@ def search(app, message):
          )
      
 
-@app.on_message(filters.regex("^تعطيل اليوتيوب$|^تعطيل التحميل$") & filters.group, group = 21)
+@Client.on_message(filters.regex("^تعطيل اليوتيوب$|^تعطيل التحميل$") & filters.group, group = 21)
 def dis_yt(app,message):
     e = "**⇜ اليوتيوب معطل من قبل .**"
     d = "**⇜ من 「 {} 」 \n⇜ ابشر قفلت اليوتيوب \n༄**"
@@ -99,7 +99,7 @@ def dis_yt(app,message):
         else:
             db.set(f'lock_yt_{message.chat.id}', True)
             message.reply(d.format(message.from_user.mention))
-@app.on_message(filters.regex("^تفعيل اليوتيوب$|^تفعيل التحميل$") & filters.group, group =22)
+@Client.on_message(filters.regex("^تفعيل اليوتيوب$|^تفعيل التحميل$") & filters.group, group =22)
 def ena_yt(app,message):
     e = "**⇜ اليوتيوب مفعل من قبل .**"
     d = "**⇜ من 「 {} 」 \n⇜ ابشر فعلت اليوتيوب \n༄**"
@@ -115,7 +115,7 @@ def ena_yt(app,message):
         else:
             db.set(f'lock_yt_{message.chat.id}', False)
             message.reply(d.format(message.from_user.mention))
-@app.on_callback_query(filters.regex("GET") , group = 23)
+@Client.on_inline_query(filters.regex("GET") , group = 23)
 def get_info(app, query: CallbackQuery):
     
     user_id = query.data.split("GET")[0]
@@ -159,7 +159,7 @@ error = InlineKeyboardMarkup (
   ]]
 )
 
-@app.on_callback_query(filters.regex("AUDIO") , group = 24)
+@Client.on_inline_query(filters.regex("AUDIO") , group = 24)
 def get_audii(app, query: CallbackQuery):
     
     user_id = query.data.split("AUDIO")[0]
@@ -199,7 +199,7 @@ def get_audii(app, query: CallbackQuery):
     os.remove(audio_file)
 
 
-@app.on_callback_query(filters.regex("VIDEO") , group = 26)
+@Client.on_inline_query(filters.regex("VIDEO") , group = 26)
 def get_video(app, query: CallbackQuery):
     
     user_id = query.data.split("VIDEO")[0]
