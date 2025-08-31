@@ -122,6 +122,7 @@ def Find(text):
       
 data = cl("protect")
 db = data['data']
+db.create_table()
 
 app.start()
 # userbot.start()
