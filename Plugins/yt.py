@@ -205,42 +205,41 @@ def get_video(app, query: CallbackQuery):
     user_id = query.data.split("VIDEO")[0]
     vid_id = query.data.split("VIDEO")[1]
     if not query.from_user.id == int(user_id):
-        return query.answer("⚠️ هذا الأمر لا يخصك ", show_alert=True)
-
+      return query.answer("⚠️ هذا الأمر لا يخصك ", show_alert=True)
     url = f'https://youtu.be/{vid_id}'
     query.edit_message_text("**جاري التحميل ..**", reply_markup=download)
-
-    # استخدام الـ API الجديد لتحميل الفيديو
-    api_url = f"https://sii3.moayman.top/api/do.php?url={url}"
-    response = requests.get(api_url, stream=True)
-    if response.status_code != 200:
-        return query.edit_message_text("❌ حدث خطأ أثناء التحميل.", reply_markup=error)
-
-    file_name = f"{vid_id}.mp4"
-    with open(file_name, "wb") as f:
-        for chunk in response.iter_content(chunk_size=1024*1024):
-            if chunk:
-                f.write(chunk)
-
+    with yt_dlp.YoutubeDL({}) as ydl:
+        info_dict = ydl.extract_info(url, download=False)
+        if int(info_dict['duration']) > 3605:
+          return query.edit_message_text("**⚠️ حد التحميل ساعة فقط**",reply_markup=error)
+    ydl_opts = {
+        "format": "best",
+        "keepvideo": True,
+        "prefer_ffmpeg": False,
+        "geo_bypass": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "quite": True,
+    }
+    with YoutubeDL(ydl_opts) as ytdl:
+        ytdl_data = ytdl.extract_info(url, download=True)
+        file_name = ytdl.prepare_filename(ytdl_data)
     query.edit_message_text("**جاري الإرسال ..**", reply_markup=upload)
-
-    # تحميل الصورة المصغرة
-    thumb_resp = requests.get(f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg")
+    response= requests.get(info_dict['thumbnail'])
     with open(f"{vid_id}.png", "wb") as file:
-        file.write(thumb_resp.content)
+      file.write(response.content)
     thumb = f"{vid_id}.png"
-
     user = app.get_users(int(user_id))
     query.message.reply_video(
-        file_name,
-        caption=f'• البحث من  -› {user.mention}',
-        thumb=thumb
+      file_name,
+      duration=int(info_dict['duration']),
+      caption=f'• البحث من  -› {user.mention}',
+      thumb=thumb
     )
-
     doneload = InlineKeyboardMarkup (
-        [[InlineKeyboardButton("إلين", url='T.me/YamenThon')]]
+      [[
+      InlineKeyboardButton("إلين", url='T.me/YamenThon')
+      ]]
     )
-    query.edit_message_text(f"**🔗 [{vid_id}]({url})**", reply_markup=doneload, disable_web_page_preview=True)
-
+    query.edit_message_text(f"**🔗 [{info_dict['title']}]({url})**", reply_markup=doneload,disable_web_page_preview=True)
     os.remove(thumb)
     os.remove(file_name)
