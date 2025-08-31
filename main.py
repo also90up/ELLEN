@@ -1,6 +1,12 @@
 import time, redis, os, json, re, requests, asyncio 
 from pyrogram import *
 from asSQL import Client as cl
+
+data = cl("protect")
+db = data['data']
+db.create_table()
+
+
 r = redis.Redis('localhost',decode_responses=True)
 
 to_config = """
@@ -120,9 +126,7 @@ def Find(text):
 #       await c.copy_media_group(int(chat_id), m.from_user.id, m.id,reply_to_message_id=int(id))
 #       r.delete("media:insta")
       
-data = cl("protect")
-db = data['data']
-db.create_table()
+
 
 app.start()
 # userbot.start()
