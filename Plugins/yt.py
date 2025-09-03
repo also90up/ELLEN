@@ -47,7 +47,7 @@ def stm(seconds: int):
 
 disable = []
 
-@app.on_message(filters.command("يوت", ["&",""]), group=20)
+@Client.on_message(filters.command("يوت", ["&",""]), group=20)
 async def yttt(app, message):
     if message.text:
         if db.key_exists(f'group_{message.chat.id}') == 1:
@@ -95,7 +95,7 @@ async def yttt(app, message):
                 except Exception:
                     pass
 
-@app.on_message(filters.command("بحث", ["&",""]), group=20)
+@Client.on_message(filters.command("بحث", ["&",""]), group=20)
 async def search(app, message):
     if message.text:
         if db.key_exists(f'group_{message.chat.id}') == 1:
@@ -126,7 +126,7 @@ async def search(app, message):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
-@app.on_message(filters.regex("^تعطيل اليوتيوب$|^تعطيل التحميل$") & filters.group, group=21)
+@Client.on_message(filters.regex("^تعطيل اليوتيوب$|^تعطيل التحميل$") & filters.group, group=21)
 async def dis_yt(app, message):
     e = "**⇜ اليوتيوب معطل من قبل .**"
     d = "**⇜ من 「 {} 」 \n⇜ ابشر قفلت اليوتيوب \n༄**"
@@ -143,7 +143,7 @@ async def dis_yt(app, message):
             db.set(f'lock_yt_{message.chat.id}', True)
             await message.reply(d.format(message.from_user.mention))
 
-@app.on_message(filters.regex("^تفعيل اليوتيوب$|^تفعيل التحميل$") & filters.group, group=22)
+@Client.on_message(filters.regex("^تفعيل اليوتيوب$|^تفعيل التحميل$") & filters.group, group=22)
 async def ena_yt(app, message):
     e = "**⇜ اليوتيوب مفعل من قبل .**"
     d = "**⇜ من 「 {} 」 \n⇜ ابشر فعلت اليوتيوب \n༄**"
@@ -160,7 +160,7 @@ async def ena_yt(app, message):
             db.set(f'lock_yt_{message.chat.id}', False)
             await message.reply(d.format(message.from_user.mention))
 
-@app.on_callback_query(filters.regex("GET"), group=23)
+@Client.on_callback_query(filters.regex("GET"), group=23)
 async def get_info(app, query: CallbackQuery):
     user_id = query.data.split("GET")[0]
     vid_id = query.data.split("GET")[1]
@@ -197,7 +197,7 @@ error = InlineKeyboardMarkup(
     [[InlineKeyboardButton("⚠️", url='t.me/YamenThon')]]
 )
 
-@app.on_callback_query(filters.regex("AUDIO"), group=24)
+@Client.on_callback_query(filters.regex("AUDIO"), group=24)
 async def get_audii(app, query: CallbackQuery):
     user_id = query.data.split("AUDIO")[0]
     vid_id = query.data.split("AUDIO")[1]
@@ -244,7 +244,7 @@ async def get_audii(app, query: CallbackQuery):
                 except Exception:
                     pass
 
-@app.on_callback_query(filters.regex("VIDEO"), group=26)
+@Client.on_callback_query(filters.regex("VIDEO"), group=26)
 async def get_video(app, query: CallbackQuery):
     user_id = query.data.split("VIDEO")[0]
     vid_id = query.data.split("VIDEO")[1]
