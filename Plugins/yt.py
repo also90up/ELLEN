@@ -1,4 +1,5 @@
 import os, time
+from pyrogram import *
 from pyrogram import filters, idle
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery 
 from pyrogram.enums import ChatMemberStatus 
