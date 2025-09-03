@@ -11,34 +11,6 @@ import yt_dlp
 from asSQL import Client as cl
 from .is_admin import owner, admin, add_msg
 
-# =========================
-# جلب instance اسمها app من مشروعك
-# (يحاول عدة احتمالات شائعة: main.py / loader.py / yamenthon.py / bot.py)
-# لا يغيّر أي أمر في الكود—فقط تهيئة ليعمل كبلجن.
-# =========================
-app = None
-_try_targets = [
-    ("main", "app"),
-    ("main", "bot"),
-    ("loader", "app"),
-    ("loader", "bot"),
-    ("yamenthon", "app"),
-    ("yamenthon", "bot"),
-    ("bot", "app"),
-    ("bot", "bot"),
-]
-for _mod, _attr in _try_targets:
-    try:
-        _m = __import__(_mod, fromlist=[_attr])
-        app = getattr(_m, _attr)
-        if app:
-            break
-    except Exception:
-        pass
-
-if app is None:
-    raise RuntimeError("لم أستطع العثور على Client instance باسم app/‏bot داخل مشروعك. \
-تأكد أن لديك متغيراً عالمياً app أو bot في أحد الملفات: main.py / loader.py / yamenthon.py / bot.py وقم بتحميل البلجن بعد إنشاء العميل.")
 
 data = cl("protect")
 db = data['data']
